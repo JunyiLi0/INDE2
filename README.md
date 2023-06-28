@@ -23,3 +23,11 @@ cd inde2
 sbt compile
 
 sbt run
+
+Lien utiles : 
+
+https://kafka.apache.org/35/documentation/streams/quickstart
+
+https://kafka.apache.org/35/documentation/streams/tutorial
+
+https://chat.openai.com
