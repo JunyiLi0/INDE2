@@ -16,14 +16,14 @@ object KafkaProducerExample {
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
     val producer = new KafkaProducer[String, String](props)
-
     try {
       val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-      while (true) {
+
+      val droneIterator = Iterator.continually {
         val drones = (0 until numberOfDrones).toList
 
-        drones.foreach { drone =>
+        drones.map { drone =>
           val latitude = getRandomCoordinate(-90, 90)
           val longitude = getRandomCoordinate(-180, 180)
           val harmonyScore = scala.util.Random.nextInt(101)
@@ -37,11 +37,18 @@ object KafkaProducerExample {
           producer.send(record)
 
           println("Sent message: " + jsonString)
-        }
 
-        // Sleep for 60000 for 1 minute
-        Thread.sleep(20000)
-      }
+          jsonString
+        }
+      }.flatten
+
+      val filteredDroneIterator = droneIterator.takeWhile(_ => true) // Modify the condition as needed
+
+      // Consume the iterator
+      filteredDroneIterator.foreach(println)
+
+      // Sleep for 20000 milliseconds (20 seconds)
+      Thread.sleep(20000)
     } catch {
       case e: Exception => e.printStackTrace()
     } finally {
