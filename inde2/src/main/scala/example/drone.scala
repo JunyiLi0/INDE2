@@ -22,36 +22,38 @@ object KafkaProducerExample {
 
 
       val droneIterator = Iterator.continually {
-        val drones = (0 until numberOfDrones).toList
-        val citizens = (0 until scala.util.Random.nextInt(numberMaxOfCitizen)).map(_ => {
+        val drones = (0 until numberOfDrones).toList.map { drone =>
+          val longitude = getRandomCoordinate(-180, 180)
+          val latitude = getRandomCoordinate(-90, 90)
+
+          val citizens = (0 until scala.util.Random.nextInt(numberMaxOfCitizen)).map(_ => {
           val citizenId = scala.util.Random.nextInt(100)
           val harmonyScore = scala.util.Random.nextInt(101)
           (citizenId, harmonyScore)
         })
 
-        val harmonyScores = citizens.map { case (citizenId, harmonyScore) =>
-          s""""$citizenId": "$harmonyScore""""
-        }.mkString("[ ", ", ", " ]")
+          val harmonyScores = citizens.map { case (citizenId, harmonyScore) =>
+            s""""$citizenId": "$harmonyScore""""
+          }.mkString("{ ", ", ", " }")
 
-        drones.map { drone =>
-          val latitude = getRandomCoordinate(-90, 90)
-          val longitude = getRandomCoordinate(-180, 180)
           val words = citizens.map { case (_, harmonyScore) =>
             getWordsBasedOnHarmonyScore(harmonyScore)
           }.mkString(", ")
           val timestamp = LocalDateTime.now().format(formatter)
 
-          val jsonString = s"""{"id":$drone, "timestamp":"$timestamp", "x":$latitude, "y":$longitude, "harmonyscores":$harmonyScores, "words":"$words"}"""
+          val jsonString = s"""{"id":$drone, "timestamp":"$timestamp", "longitude":$longitude, "latitude":$latitude, "harmonyscores":$harmonyScores, "words":"$words" },"""
 
           val record = new ProducerRecord[String, String](topic, jsonString)
           producer.send(record)
 
           // Sleep for 20000 milliseconds (20 seconds)
           println("Sent message: " + jsonString)
-          Thread.sleep(20000)
+  
           
           jsonString
         }
+        Thread.sleep(20000)
+        drones
       }.flatten
 
       val filteredDroneIterator = droneIterator.takeWhile(_ => true).foreach(_ => ())

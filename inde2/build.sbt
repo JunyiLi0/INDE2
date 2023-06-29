@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
     name := "inde2",
   libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka" % "2.8.0",
-  "org.apache.kafka" % "kafka-streams" % "2.8.0"
+  "org.apache.kafka" % "kafka-streams" % "2.8.0",
+  "org.json4s" %% "json4s-jackson" % "3.6.11"
 ))
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
