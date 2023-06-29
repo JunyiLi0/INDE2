@@ -90,7 +90,7 @@ object KafkaConsumerExample {
   def sendAlert(message: String): Unit = {
     if (SystemTray.isSupported()) {
       val tray = SystemTray.getSystemTray()
-      val trayIcon = new TrayIcon(java.awt.Toolkit.getDefaultToolkit().getImage("../ressources/alert.png"))
+      val trayIcon = new TrayIcon(java.awt.Toolkit.getDefaultToolkit().getImage("../../../ressources/alert.png"))
 
       trayIcon.setImageAutoSize(true)
       trayIcon.setToolTip("Alert")
