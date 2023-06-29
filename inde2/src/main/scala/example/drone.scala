@@ -7,7 +7,8 @@ object KafkaProducerExample {
   def main(args: Array[String]): Unit = {
     val topic = "harmony-topic"
     val bootstrapServers = "localhost:9092" // Replace with your Kafka bootstrap servers
-    val numberOfDrones = 9
+    val numberOfDrones = 10
+    val numberMaxOfCitizen = 10
 
     // Configure Kafka producer properties
     val props = new Properties()
@@ -22,16 +23,25 @@ object KafkaProducerExample {
 
       while (true) {
         val drones = (0 until numberOfDrones).toList
+        val citizens = (0 until scala.util.Random.nextInt(numberMaxOfCitizen)).map(_ => {
+          val citizenId = scala.util.Random.nextInt(100)
+          val harmonyScore = scala.util.Random.nextInt(101)
+          (citizenId, harmonyScore)
+        })
+
+        val harmonyScores = citizens.map { case (citizenId, harmonyScore) =>
+          s""""$citizenId": "$harmonyScore""""
+        }.mkString("[ ", ", ", " ]")
 
         drones.foreach { drone =>
           val latitude = getRandomCoordinate(-90, 90)
           val longitude = getRandomCoordinate(-180, 180)
-          val harmonyScore = scala.util.Random.nextInt(101)
-          val words = getWordsBasedOnHarmonyScore(harmonyScore)
+          val words = citizens.map { case (_, harmonyScore) =>
+            getWordsBasedOnHarmonyScore(harmonyScore)
+          }.mkString(", ")
           val timestamp = LocalDateTime.now().format(formatter)
 
-          val jsonString =
-            s"""{"id":$drone, "timestamp":"$timestamp", "x":$latitude, "y":$longitude, "harmonyscore":$harmonyScore, "words":"$words"}"""
+          val jsonString = s"""{"id":$drone, "timestamp":"$timestamp", "x":$latitude, "y":$longitude, "harmonyscores":$harmonyScores, "words":"$words"}"""
 
           val record = new ProducerRecord[String, String](topic, jsonString)
           producer.send(record)
