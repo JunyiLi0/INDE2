@@ -46,19 +46,16 @@ object KafkaProducerExample {
           val record = new ProducerRecord[String, String](topic, jsonString)
           producer.send(record)
 
+          // Sleep for 20000 milliseconds (20 seconds)
           println("Sent message: " + jsonString)
-
+          Thread.sleep(20000)
+          
           jsonString
         }
       }.flatten
 
-      val filteredDroneIterator = droneIterator.takeWhile(_ => true) // Modify the condition as needed
+      val filteredDroneIterator = droneIterator.takeWhile(_ => true).foreach(_ => ())
 
-      // Consume the iterator
-      filteredDroneIterator.foreach(println)
-
-      // Sleep for 20000 milliseconds (20 seconds)
-      Thread.sleep(20000)
     } catch {
       case e: Exception => e.printStackTrace()
     } finally {
