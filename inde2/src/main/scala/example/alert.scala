@@ -7,6 +7,8 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 import org.json4s.DefaultFormats
+import java.awt.{SystemTray, TrayIcon}
+import java.awt.TrayIcon.MessageType
 
 
 object KafkaConsumerExample {
@@ -76,10 +78,27 @@ object KafkaConsumerExample {
         val outputRecord = new ProducerRecord[String, String]("preprocessed-topic", preprocessedJsonString)
 
         if (filteredHarmonyscores.nonEmpty) {
-        producer.send(outputRecord)
-        println("Preprocessed message: " + preprocessedJsonString)
+          producer.send(outputRecord)
+          println("Preprocessed message: " + preprocessedJsonString)
+          val alertMessage = s"An element in the output stream requires attention!\nTimestamp: $timestamp\nLongitude: $x\nLatitude: $y"
+          sendAlert(alertMessage)
         }
         processRecord(iterator, producer)
+    }
+  }
+
+  def sendAlert(message: String): Unit = {
+    if (SystemTray.isSupported()) {
+      val tray = SystemTray.getSystemTray()
+      val trayIcon = new TrayIcon(java.awt.Toolkit.getDefaultToolkit().getImage("../ressources/alert.png"))
+
+      trayIcon.setImageAutoSize(true)
+      trayIcon.setToolTip("Alert")
+      tray.add(trayIcon)
+
+      trayIcon.displayMessage("Alert", message, MessageType.INFO)
+    } else {
+      println("System tray is not supported on this platform.")
     }
   }
 }
