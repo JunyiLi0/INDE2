@@ -80,7 +80,7 @@ object KafkaConsumerExample {
         if (filteredHarmonyscores.nonEmpty) {
           producer.send(outputRecord)
           println("Preprocessed message: " + preprocessedJsonString)
-          val alertMessage = s"An element in the output stream requires attention!\nTimestamp: $timestamp\nLongitude: $x\nLatitude: $y"
+          val alertMessage = s"We detected an anomaly!\nTimestamp: $timestamp\nLongitude: $x\nLatitude: $y"
           sendAlert(alertMessage)
         }
         processRecord(iterator, producer)
